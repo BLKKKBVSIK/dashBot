@@ -1,13 +1,16 @@
 name: dashBot
 description: A simple command-line application.
-# version: 1.0.0
-# homepage: https://www.example.com
+version: 1.0.0
+homepage: https://github.com/BLKKKBVSIK/dashBot/
+repository: https://github.com/BLKKKBVSIK/dashBot/
+author: Enzo Conty <contact@enzoconty.dev>
 
 environment:
-  sdk: '>=2.7.0 <3.0.0'
+  sdk: '>=2.9.0'
 
-#dependencies:
-#  path: ^1.6.0
+dependencies:
+  nyxx: "^1.0.0"
+  nyxx_commander: "^1.0.0"
 
 dev_dependencies:
   pedantic: ^1.8.0
