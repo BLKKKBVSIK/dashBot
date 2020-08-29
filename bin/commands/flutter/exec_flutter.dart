@@ -1,6 +1,62 @@
+import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_commander/commander.dart';
 import '../../misc/filter_content.dart';
+import '../../misc/config.dart' as config;
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 Future<void> execFlutter(CommandContext ctx, String content) async {
   content = filterContent(content);
+  final stopwatch = Stopwatch()..start();
+  final footer = EmbedFooterBuilder()..text = 'Exec time: pending...';
+  final embed = EmbedBuilder()
+    ..title = 'Result'
+    ..color = DiscordColor.flutterBlue
+    ..addField(
+        name: 'Render - Flutter',
+        content: 'Your code is being processed\nPlease wait...',
+        inline: true)
+    ..footer = footer;
+
+  final message = await ctx.reply(embed: embed);
+
+  final response = await http.post(
+    'https://api.github.com/gists',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer ${config.ghToken}'
+    },
+    body: convert.jsonEncode(
+      <String, dynamic>{
+        'description': 'Someone generated this file',
+        'public': false,
+        'files': {
+          'main.dart': {'content': '$content'}
+        }
+      },
+    ),
+  );
+  if (response.statusCode == 201) {
+    final res = convert.jsonDecode(response.body);
+
+
+    final footer = EmbedFooterBuilder()..text = 'Exec time: ${stopwatch.elapsedMilliseconds} ms';
+    embed..url = 'https://dartpad.dartlang.org/${res['id']}';
+    embed
+      ..replaceField(
+          name: 'Render - Flutter',
+          content:
+              'Your render is available by clicking on the link or at this address\nhttps://dartpad.dartlang.org/${res['id']}',
+          inline: true);
+    embed..footer = footer;
+
+    await message.edit(embed: embed);
+
+  } else {
+    // TODO: Make an embed in case of error.
+
+    // ignore: avoid_print
+    print(response.body);
+    print('Failed to call REST API.');
+  }
 }
