@@ -37,10 +37,16 @@ Future<void> execFlutter(CommandContext ctx, String content) async {
 
     await message.edit(embed: embed);
   } else {
-    // TODO: Make an embed in case of error.
-
-    // ignore: avoid_print
-    print(response.body);
-    print('Failed to call REST API.');
+     final footer = EmbedFooterBuilder()
+      ..text = 'Exec time: Failed.';
+    embed..url = 'https://www.githubstatus.com/';
+    embed
+      ..color = DiscordColor.red
+      ..replaceField(
+          name: 'Render - Flutter',
+          content:
+              'Failed to call Github REST Api (v3) on endpoint:\nhttps://api.github.com/gists',
+          inline: true);
+    embed..footer = footer;
   }
 }
