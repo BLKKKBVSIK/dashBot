@@ -18,5 +18,6 @@ void main() {
     );
   });
 
-  Commander(bot, prefix: config.prefix);
+  Commander(bot, prefix: config.prefix)
+    ..registerCommand('flutter', execFlutter);
 }
