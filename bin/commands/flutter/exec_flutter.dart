@@ -1,12 +1,10 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_commander/commander.dart';
 import '../../misc/filter_content.dart';
-import '../../misc/config.dart' as config;
 import 'dart:convert' as convert;
-import 'package:http/http.dart' as http;
+import '../../misc/post_gist.dart';
 
 Future<void> execFlutter(CommandContext ctx, String content) async {
-  content = filterContent(content);
   final stopwatch = Stopwatch()..start();
   final footer = EmbedFooterBuilder()..text = 'Exec time: pending...';
   final embed = EmbedBuilder()
@@ -18,29 +16,16 @@ Future<void> execFlutter(CommandContext ctx, String content) async {
         inline: true)
     ..footer = footer;
 
+  content = filterContent(content);
+
   final message = await ctx.reply(embed: embed);
 
-  final response = await http.post(
-    'https://api.github.com/gists',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer ${config.ghToken}'
-    },
-    body: convert.jsonEncode(
-      <String, dynamic>{
-        'description': 'Someone generated this file',
-        'public': false,
-        'files': {
-          'main.dart': {'content': '$content'}
-        }
-      },
-    ),
-  );
+  final response = await postGist(content);
   if (response.statusCode == 201) {
     final res = convert.jsonDecode(response.body);
 
-
-    final footer = EmbedFooterBuilder()..text = 'Exec time: ${stopwatch.elapsedMilliseconds} ms';
+    final footer = EmbedFooterBuilder()
+      ..text = 'Exec time: ${stopwatch.elapsedMilliseconds} ms';
     embed..url = 'https://dartpad.dartlang.org/${res['id']}';
     embed
       ..replaceField(
@@ -51,7 +36,6 @@ Future<void> execFlutter(CommandContext ctx, String content) async {
     embed..footer = footer;
 
     await message.edit(embed: embed);
-
   } else {
     // TODO: Make an embed in case of error.
 
