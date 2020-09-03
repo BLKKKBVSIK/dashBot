@@ -1,7 +1,5 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_commander/commander.dart';
-
-import 'commands/dart/exec_dart.dart';
 import 'commands/flutter/exec_flutter.dart';
 import 'misc/config.dart' as config;
 
